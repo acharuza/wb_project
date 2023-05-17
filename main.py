@@ -6,13 +6,23 @@ from similarity import similarity_f
 
 
 def create_graph(edges, vertices):
-    G = nx.Graph()
-    G.add_nodes_from(vertices['id'].tolist())
-    G.add_edges_from([(edges['id1'][i], edges['id2'][i]) for i in range(len(edges))])
-    return G
+    '''
+    :param edges: df with info about edges
+    :param vertices: df with info about vertices
+    :return: networkx graph
+    '''
+    graph = nx.Graph()
+    graph.add_nodes_from(vertices['id'].tolist())
+    graph.add_edges_from([(edges['id1'][i], edges['id2'][i]) for i in range(len(edges))])
+    return graph
 
 
 def read_files(graph_nr, hic_size):
+    '''
+    :param graph_nr: number of graph to load its vertices and edges
+    :param hic_size: size of hic map to load
+    :return: df edges, df vertices and numpy array hic_map
+    '''
     edges = pd.read_csv(f'data/WB_mesh/d{graph_nr}_E.csv')
     vertices = pd.read_csv(f'data/WB_mesh/d{graph_nr}_V.csv')
 
@@ -27,10 +37,15 @@ def read_files(graph_nr, hic_size):
 
 def main():
     edges, vertices, hic_map = read_files(8, 50)
-    G = create_graph(edges, vertices)
-    structures = density_g(None, G)
-    print(structures)
-    print(similarity_f(structures[3], vertices, hic_map))
+    g = create_graph(edges, vertices)
+
+    structures = density_g(None, g)
+    for i in range(100):
+        structures = density_g(structures[len(structures) - 1], g)
+
+    print(structures[len(structures) - 1])
+    print(len(structures[len(structures) - 1]))
+    print(similarity_f(structures[len(structures) - 1], vertices, hic_map))
 
 
 if __name__ == '__main__':

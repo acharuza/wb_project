@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.interpolate as inter
+from skimage.transform import resize
 
 
 def similarity_f(structure, vertices, hic_map):
@@ -22,11 +23,15 @@ def similarity_f(structure, vertices, hic_map):
                          vertices[vertices['id'] == structure[j]]['z']])
             distance_matrix[i, j] = np.sqrt(np.sum((a-b)**2))
 
-    vals = np.reshape(distance_matrix, distance_matrix.size)
-    pts = np.array([[i, j] for i in range(n) for j in range(n)])
-    grid_x, grid_y = np.mgrid[0:1:hic_map.shape[0]*1j, 0:1:hic_map.shape[0]*1j]
-    grid_z = inter.griddata(pts, vals, (grid_x, grid_y), method='linear')
+    if distance_matrix.shape[0] < hic_map.shape[0]:
+        vals = np.reshape(distance_matrix, distance_matrix.size)
+        pts = np.array([[i, j] for i in range(n) for j in range(n)])
+        grid_x, grid_y = np.mgrid[0:1:hic_map.shape[0] * 1j, 0:1:hic_map.shape[0] * 1j]
+        distance_matrix = inter.griddata(pts, vals, (grid_x, grid_y), method='linear')
 
-    distance_matrix = np.linalg.inv(grid_z)
+    elif distance_matrix.shape[0] > hic_map.shape[0]:
+        distance_matrix = resize(distance_matrix, (50, 50), mode='constant')
+
+    distance_matrix = np.linalg.inv(distance_matrix)
     pearson = np.corrcoef(distance_matrix, hic_map)[0, 1]
     return pearson

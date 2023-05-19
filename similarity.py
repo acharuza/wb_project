@@ -33,5 +33,8 @@ def similarity_f(structure, vertices, hic_map):
         distance_matrix = resize(distance_matrix, (50, 50), mode='constant')
 
     distance_matrix = np.reciprocal(distance_matrix.astype(float), where=distance_matrix != 0)
+    # changing to 0 values on diagonal because distance between the same point is always 0
+    for i in range(len(hic_map)):
+        hic_map[i, i] = 0
     pearson = np.corrcoef(distance_matrix, hic_map)[0, 1]
     return pearson

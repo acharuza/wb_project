@@ -40,12 +40,8 @@ def main():
     g = create_graph(edges, vertices)
 
     structures = density_g(None, g)
-    for i in range(100):
-        structures = density_g(structures[len(structures) - 1], g)
-
-    print(structures[len(structures) - 1])
-    print(len(structures[len(structures) - 1]))
-    print(similarity_f(structures[len(structures) - 1], vertices, hic_map))
+    print(structures)
+    print(similarity_f(structures[1], vertices, hic_map))
 
 
 if __name__ == '__main__':
